@@ -112,11 +112,20 @@ To perform the attack successfully:
   ```
   echo 0 > /proc/sys/kernel/randomize_va_space
   ```
-- Verify stack protection is disabled by using `checksec` on the binary.
+- Verify stack protection is disabled by using `checksec` on the binary or using `cat /proc/sys/kernel/randomize_va_space` which should return 0.
 
-2. **Adjust Payload**:
-- Fine-tune the shellcode to match the target environment. This means making sure that my code has the correct shellcode and the offset needed.
+2. **Use of NOP Sled**:
+- I will increase the size of the NOP SLED giving us an easier time as long as the returned address we choose is inside the nope sled and is before the shellcode.
+- THis will allow the pointer to slide to the code were we want it to go.
+  
+3. **Accurate Return Address and buffer**:
+- We can accurately choose the buffer by wither using the the p &buffer in the gdb or we can manually find it by adding a breakpoint at the bof. We can later use `info frame` to go over it using `x/40x $rsp`.
 
+4. **Correct structure**:
+- It is important to use the correct structure for the correct operating system since I am using a 64 bit the stack must be in 16 bit. IF it is not acorrectly alligned it will caused the shellcode to not work.
+
+5. **Debugging**:
+  - This is going to be the most important to be able to succedd it will take alot of trial and error depending of the OS that we decide to use. I would find the offset first and once i know how much is needed to overwrite.
 
 ---
 
