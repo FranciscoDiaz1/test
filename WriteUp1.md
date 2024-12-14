@@ -52,7 +52,7 @@ To compile the vulnerable program `vuln.c`, I used the following command:
 - Is also used to limit the program to 32-bit registers.
 
 ---
-## Staring of
+## Starting of
 
 I created the badfile by using `touch badfile` this will be alter be done witht the use of exploit.c. When running the vuln code I first need it to cause a segmentation fault to get a better understanding with the memory. I need to find the offset and a return address. I tested it out and figures that the input size needed to cause a segmentation fault was 112. This is when I later realized that the last four bits were 0x42424242 which was the last four letters that were after my A's. When i did this I later realized that when i checked `info registers` that I had also realized that i overwrote the RIP. Rips is needed to be overwritten because it is the next instruction pointer this will allow us to take control of what is going to happen next. This well be used when implementing the NOP sled. THe following shows the rgisters were I overwrote RIP.
 
@@ -62,6 +62,9 @@ Info Register:
 
 The use of the NOP sled well allow it to reach the shellcode that I had injected into the buffer which would be in between the NOP. I wanted to see were my $rsp started and did the following to find it. The nope sled will be used to continue like a sled until it finally reaches my shellcode. THe shellcode compared to the regular overflow in thios lab we will be targeting the rever shellcode so we need to gain access remotely this is done by the computer we are targeting to have a port listening and the information needed to attack will be implemented and inside the shellcode. Since we are doing this locally all we need to do is have a port open and listsning and two terminals running.
 
+
+Detected:
+![Detected Screenshot](Detected.png)
 
 
 
@@ -96,7 +99,7 @@ The use of the NOP sled well allow it to reach the shellcode that I had injected
 - Stack protection was disabled during compilation, but further issues could arise.
 
 3. **Improper information**:
-4. - THe reason why it may have failed is beacuse we werent using the currect address or the right amont of offset even though i was able to overwrite RIP.
+- The reason why it may have failed is beacuse we werent using the currect address or the right amont of offset even though i was able to overwrite RIP.
 
 ---
 
