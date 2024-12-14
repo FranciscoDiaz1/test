@@ -26,7 +26,7 @@ The goal is to gain root access by the use of reverse shell by exploiting the bu
    - Connects to the attackers Ip address and port.
    - provides us with a remote shell.
 
-## Disabling measure:
+### Disabling measure:
 In this lab we awere asked to this in an older model which had a linux kernel of 2.4 but i was curious if i could have accomplished doing this lab with a modern linux. IN order to have the best p[ossible chance to do this i needed to disable as much of the defenses possible and I did this by typing `sudo sysctl -w kernel.randomize_va_space=0`.
 
 To compile the vulnerable program `vuln.c`, I used the following command:
@@ -58,12 +58,7 @@ To compile the vulnerable program `vuln.c`, I used the following command:
 - Found the saved base pointer with `p $rsp`.
 - Calculated the offset to the return address with `p/d`.
 
-3. **Constructed the Payload**:
-- Created a unique pattern manually since tools like `cyclic` or `pwntools` were unavailable.
-- Built a payload with:
-  - A **NOP sled** to ensure reliable execution.
-  - Reverse shellcode to spawn `/bin/sh`.
-  - Overwrote the return address with the calculated buffer address.
+
 
 4. **Tested the Exploit**:
 - Compiled the vulnerable program and payload:
