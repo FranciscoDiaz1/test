@@ -32,71 +32,81 @@ In this lab we awere asked to this in an older model which had a linux kernel of
 To compile the vulnerable program `vuln.c`, I used the following command:
 `gcc -g -z execstack -fno-stack-protector vuln.c -o vuln` and in this lab i attempted to see the difference of trying it in both 64 and also in 32-bit. I did this by entering `gcc -g -m32 -z execstack -fno-stack-protector vuln.c -o vuln`.
 
-### Explanation of Flags
+
+### Explanation of Compilation Flags
+
 1. **`-g`**:
-   - The `-g` flag includes debugging information in the executable because without it it would not have any readable symobols while I am debugging which is needed.
-   - This is important for analyzing the program with `gdb`, as it provides access to symbolic debugging data.
+- Includes debugging information for use with `gdb`.
+- Provides readable symbols for debugging.
 
-3. **`-z execstack`**:
-   - The `-z execstack` flag enables an executable stack.
-   - Modern systems often mark the stack as non-executable to prevent attacks like stack smashing which we are doing on this lab. This will allow the stack to execute code, which is necessary for executing shellcode injected during the exploit.
+2. **`-z execstack`**:
+- Enables an executable stack.
+- Modern systems mark the stack as non-executable by default, preventing attacks like stack smashing. This flag allows executing shellcode injected during the exploit.
 
+3. **`-fno-stack-protector`**:
+- Disables the stack canary, a security feature that prevents buffer overflow attacks.
+- Without this flag, the program terminates if a stack overflow is detected, preventing overwriting the return address.
 
-4. **`-fno-stack-protector`**:
-   - This flag disables the stack canary, a security feature added by default to protect against buffer overflow attacks.
-   - Without this flag, the program would terminate if a stack overflow is detected, making it impossible to overwrite the return address.
-   - 
-**Debugging Code**
-     - I also used the `gdb` to examine the program’s memory layout:
-     - Found the buffer's starting address with `p &buffer`.
-     - Located the saved base pointer with `p $rsp`. 
-     - Calculated the offset to the return address with `p/d`.
+4.**`-m32`**:
+- This is used to target and make it to choose the 32 architecture and not the default one which is 64.
+- Is also used to limit the program to 32-bit registers.
 
-2. **Constructed the Payload**:
-   - Created a unique pattern manually since i was not able to use cylic pattern or pwn on my device.
-   - Built a payload with:
-     - A **NOP sled** to ensure reliable execution.
-     - Placeholder shellcode to spawn `/bin/sh`.
-     - Overwrote the return address with the calculated buffer address.
+### Debugging Code
 
-3. **Tested the Exploit**:
-   - Compiled the vulnerable program and payload with:
-     ```
-     gcc  -fno-stack-protector -z execstack vuln.c -o vuln
-     gcc  exploit.c -o exploit
-     ```
-   - Ran the exploit:
-     ```
-     ./vuln < badfile or ./vuln
-     ```
+- Used `gdb` to examine the program’s memory layout:
+- Located the buffer's starting address with `p &buffer`.
+- Found the saved base pointer with `p $rsp`.
+- Calculated the offset to the return address with `p/d`.
+
+3. **Constructed the Payload**:
+- Created a unique pattern manually since tools like `cyclic` or `pwntools` were unavailable.
+- Built a payload with:
+  - A **NOP sled** to ensure reliable execution.
+  - Reverse shellcode to spawn `/bin/sh`.
+  - Overwrote the return address with the calculated buffer address.
+
+4. **Tested the Exploit**:
+- Compiled the vulnerable program and payload:
+  ```
+  gcc -fno-stack-protector -z execstack vuln.c -o vuln
+  gcc exploit.c -o exploit
+  ```
+- Ran the exploit:
+  ```
+  ./vuln < badfile
+  ```
 
 ### Why It Failed
-- **ASLR (Address Space Layout Randomization)**:
-  - Memory addresses were randomized, making it difficult to reliably overwrite the return address.
-  - ASLR was disabled during testing but could still cause issues if not fully disabled system-wide.
 
-- **Stack Protection**:
-  - The presence of `canary` values in the stack prevented the program from executing arbitrary code.
-  - Stack protection was disabled during compilation, but further issues may have arisen.
+1. **ASLR (Address Space Layout Randomization)**:
+- Memory addresses were randomized, making it difficult to reliably overwrite the return address.
+- ASLR was disabled during testing but could still cause issues if not fully disabled system-wide.
+
+2. **Stack Protection**:
+- Stack canaries prevented the program from executing arbitrary code.
+- Stack protection was disabled during compilation, but further issues could arise.
 
 ---
 
 ## What I Would Do to Succeed
+
 To perform the attack successfully:
+
 1. **Disable All Protections**:
-   - Ensure ASLR is fully disabled:
-     ```
-     echo 0 > /proc/sys/kernel/randomize_va_space
-     ```
-   - Verify stack protection is disabled by using `checksec` on the binary.
+- Ensure ASLR is fully disabled:
+  ```
+  echo 0 > /proc/sys/kernel/randomize_va_space
+  ```
+- Verify stack protection is disabled by using `checksec` on the binary.
 
 2. **Adjust Payload**:
-   - Fine-tune the shellcode to match the target environment.
-   - Use `pwntools` or similar tools to dynamically locate the buffer and return address.
+- Fine-tune the shellcode to match the target environment.
+- Use `pwntools` or similar tools to dynamically locate the buffer and return address.
 
 3. **Use a Controlled Environment**:
-   - Run the exploit in a virtual machine with all security mechanisms disabled.
+- Run the exploit in a virtual machine with all security mechanisms disabled.
 
+---
 
 
 
