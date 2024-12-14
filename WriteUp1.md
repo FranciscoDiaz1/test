@@ -20,7 +20,7 @@ The goal is to gain root access by the use of reverse shell by exploiting the bu
 
 ## Steps Taken
 ### What I Did
-1. **Analyzed the `vuln.c` Program**:
+**Analyzed the `vuln.c` Program**:
    I read the program file that the professor gave to us to get a better understanding how the code functioned and the best way to approach this. It was easy to understand because the professor gave us the code which he had commented and the best way to tackle this was through the  `strcpy(buffer, str); ` because it had a buffer overflow problem. In the main function it will make a large array which is bigger than the buffer which will read in from a file named "badfile" which we will create in the exploit program. This is slightly diffeent than a regular buffer overflow because the professor had asked us to do it with the use of a reverse shell. In a reverse shell it will allow the payload to allow the attacker to remotely connect to the targeted machine. This is done to the use of the payload which contains the reverse shellcode which opens a network connection. This is done by :
    - Creating a socket.
    - Connects to the attackers Ip address and port.
@@ -51,7 +51,21 @@ To compile the vulnerable program `vuln.c`, I used the following command:
 - This is used to target and make it to choose the 32 architecture and not the default one which is 64.
 - Is also used to limit the program to 32-bit registers.
 
-### Debugging Code
+---
+## Staring of
+
+I created the badfile by using `touch badfile` this will be alter be done witht the use of exploit.c. When running the vuln code I first need it to cause a segmentation fault to get a better understanding with the memory. I need to find the offset and a return address. I tested it out and figures that the input size needed to cause a segmentation fault was 112. This is when I later realized that the last four bits were 0x42424242 which was the last four letters that were after my A's. When i did this I later realized that when i checked `info registers` that I had also realized that i overwrote the RIP. Rips is needed to be overwritten because it is the next instruction pointer this will allow us to take control of what is going to happen next. This well be used when implementing the NOP sled. THe following shows the rgisters were I overwrote RIP.
+
+Info Register:
+![Overwrote Screenshot](Overwrote.png)
+
+
+The use of the NOP sled well allow it to reach the shellcode that I had injected into the buffer which would be in between the NOP. I wanted to see were my $rsp started and did the following to find it.
+
+![RSP Screenshot](RSP.png)
+
+
+## Debugging Code
 
 - Used `gdb` to examine the program’s memory layout:
 - Located the buffer's starting address with `p &buffer`.
@@ -81,6 +95,7 @@ To compile the vulnerable program `vuln.c`, I used the following command:
 - Stack canaries prevented the program from executing arbitrary code.
 - Stack protection was disabled during compilation, but further issues could arise.
 
+
 ---
 
 ## What I Would Do to Succeed
@@ -95,11 +110,8 @@ To perform the attack successfully:
 - Verify stack protection is disabled by using `checksec` on the binary.
 
 2. **Adjust Payload**:
-- Fine-tune the shellcode to match the target environment.
-- Use `pwntools` or similar tools to dynamically locate the buffer and return address.
+- Fine-tune the shellcode to match the target environment. This means making sure that my code has the correct shellcode and the offset needed.
 
-3. **Use a Controlled Environment**:
-- Run the exploit in a virtual machine with all security mechanisms disabled.
 
 ---
 
