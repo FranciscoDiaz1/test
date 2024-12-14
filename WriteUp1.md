@@ -47,12 +47,12 @@ To compile the vulnerable program `vuln.c`, I used the following command:
 - Disables the stack canary, a security feature that prevents buffer overflow attacks.
 - Without this flag, the program terminates if a stack overflow is detected, preventing overwriting the return address.
 
-4.**`-m32`**:
+4. **`-m32`**:
 - This is used to target and make it to choose the 32 architecture and not the default one which is 64.
 - Is also used to limit the program to 32-bit registers.
 
 ---
-## Starting of
+## Starting:
 
 I created the badfile by using `touch badfile` this will be alter be done witht the use of exploit.c. When running the vuln code I first need it to cause a segmentation fault to get a better understanding with the memory. I need to find the offset and a return address. I tested it out and figures that the input size needed to cause a segmentation fault was 112. This is when I later realized that the last four bits were 0x42424242 which was the last four letters that were after my A's. When i did this I later realized that when i checked `info registers` that I had also realized that i overwrote the RIP. Rips is needed to be overwritten because it is the next instruction pointer this will allow us to take control of what is going to happen next. This well be used when implementing the NOP sled. THe following shows the rgisters were I overwrote RIP.
 
@@ -77,10 +77,10 @@ Detected:
 
 
 
-4. **Tested the Exploit**:
+** Testing the Exploit**:
 - Compiled the vulnerable program and payload:
   ```
-  gcc -fno-stack-protector -z execstack vuln.c -o vuln
+  gcc -g -z execstack -fno-stack-protector vuln.c -o vuln
   gcc exploit.c -o exploit
   ```
 - Ran the exploit:
